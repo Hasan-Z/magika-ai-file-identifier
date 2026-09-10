@@ -37,27 +37,29 @@ async def startup_event():
     asyncio.create_task(load_model_in_background())
 
 def extract_magika_info(res):
-    final_score = 0.0
-    final_label = "UNKNOWN"
-    raw_dict = {}
-    try:
-        raw_dict = {
-            "label": getattr(res, "label", "N/A"),
-            "score": float(getattr(res, "score", 0.0)),
-            "dl": {
-                "ct_label": getattr(res.dl, "ct_label", "N/A") if hasattr(res, 'dl') else "N/A",
-                "score": float(getattr(res.dl, "score", 0.0)) if hasattr(res, 'dl') else 0.0
-            } if hasattr(res, 'dl') else "N/A"
-        }
-    except:
-        raw_dict = {"status": "Could not serialize"}
+    """Parses the Magika result object using the updated API fields."""
+    # Pull directly from MagikaResult (no longer stored inside .dl or .output)
+    final_score = getattr(res, "score", 0.0)
+    final_label = getattr(res, "label", "UNKNOWN")
+    
+    # Safely extract ct_label if present, or fallback to the top-level label
+    ct_label = "N/A"
+    if hasattr(res, 'dl') and hasattr(res.dl, 'ct_label'):
+        ct_label = res.dl.ct_label
+    elif hasattr(res, 'output') and hasattr(res.output, 'ct_label'):
+        ct_label = res.output.ct_label
+    else:
+        ct_label = final_label
 
-    if hasattr(res, 'score'): final_score = res.score
-    elif hasattr(res, 'dl') and hasattr(res.dl, 'score'): final_score = res.dl.score
-    if hasattr(res, 'dl') and hasattr(res.dl, 'ct_label'): final_label = res.dl.ct_label
-    elif hasattr(res, 'output') and hasattr(res.output, 'ct_label'): final_label = res.output.ct_label
-    elif hasattr(res, 'label'): final_label = res.label
-    return final_label.upper(), float(final_score), raw_dict
+    raw_dict = {
+        "label": final_label,
+        "score": float(final_score),
+        "dl": {
+            "ct_label": ct_label
+        }
+    }
+        
+    return ct_label.upper(), float(final_score), raw_dict
 
 @app.get("/status")
 async def get_status():
