@@ -55,7 +55,7 @@ run.bat
 * **Persistent Theme Toggle**: Seamless **Dark/Light** mode switcher saved in `localStorage`.
 * **Forensic Metadata Inspection**: Clean display of MIME types, detection confidence scores, and expandable raw JSON model outputs.
 * **Extension Mismatch Detector**: Dedicated endpoint (`/detect_extension_mismatch`) to catch spoofed or modified extensions.
-* **About & Project Modal**: Quick overlay panel displaying app version (`v1.0.2`) and developer info.
+* **About & Project Modal**: Quick overlay panel displaying app version (`v1.0.3`) and developer info.
 
 ---
 

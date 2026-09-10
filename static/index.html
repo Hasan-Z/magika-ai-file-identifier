@@ -387,12 +387,17 @@
             <button class="modal-close" id="closeModalBtn">&times;</button>
             <div class="modal-header">
                 <div class="modal-title">
-                    Magika AI <span class="modal-version">v1.0.2</span>
+                    Magika AI <span class="modal-version">v1.0.3</span>
                 </div>
             </div>
             <div class="modal-body">
-                <p>A fast, AI-powered forensic file detection tool capable of scanning multiple files and entire directory structures recursively using byte-slice predictions.</p>
+                <p>A fast, AI-powered forensic file detection tool using byte-slice predictions.</p>
                 
+                <div class="info-grid" style="margin-top: 8px;">
+                    <div>Magika Engine: <span id="magikaPackageVersion">Loading...</span></div>
+                    <div>Loaded Model: <span id="modelVersionBadge">Loading...</span></div>
+                </div>
+
                 <div class="modal-author">
                     <span class="modal-author-name">Hasan Zemzem</span>
                     <a class="modal-author-email" href="mailto:hasan.zamzam@gmail.com">hasan.zamzam@gmail.com</a>
@@ -421,6 +426,32 @@
         aboutModal.addEventListener('click', (e) => {
             if (e.target === aboutModal) aboutModal.classList.remove('active');
         });
+
+        // Fetch model version on load
+        async function loadAppInfo() {
+            try {
+                const response = await fetch('/api/info');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    const pkgElem = document.getElementById('magikaPackageVersion');
+                    const modelElem = document.getElementById('modelVersionBadge');
+
+                    if (pkgElem) pkgElem.textContent = `v${data.magika_package_version}`;
+                    if (modelElem) modelElem.textContent = data.model_name;
+                }
+            } catch (err) {
+                console.error('Failed to load version info:', err);
+                const pkgElem = document.getElementById('magikaPackageVersion');
+                const modelElem = document.getElementById('modelVersionBadge');
+                
+                if (pkgElem) pkgElem.textContent = 'v1.3.0';
+                if (modelElem) modelElem.textContent = 'magika-v1';
+            }
+        }
+
+        // Call function on page startup
+        document.addEventListener('DOMContentLoaded', loadAppInfo);        
 
         // Theme Toggle Logic
         const savedTheme = localStorage.getItem('theme') || 'dark';
